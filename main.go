@@ -1,26 +1,20 @@
 package main
 
 import (
-	"log"
-
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	"github.com/rivo/tview"
 )
 
 func main() {
-
-	if err := ui.Init(); err != nil {
-		log.Fatalf("failed to initialize termui: %v", err)
+	getSystemData()
+	box := tview.NewBox().SetBorder(true).SetTitle("Hello, world!")
+	if err := tview.NewApplication().SetRoot(box, true).Run(); err != nil {
+		panic(err)
 	}
-	defer ui.Close()
 
-	p0 := widgets.NewPlot()
-	p0.Title = "braille-mode Line Chart"
-	p0.SetRect(0, 0, 50, 15)
-	p0.AxesColor = ui.ColorWhite
-	p0.LineColors[0] = ui.ColorGreen
+}
 
-	ui.Render(p0)
+func getSystemData() {
+
 }
 
 /* numberVersions - int - the number of project versions being fed into the test.
