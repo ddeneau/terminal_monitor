@@ -2,47 +2,85 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/rivo/tview"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
+const refreshInterval = 500 * time.Millisecond // Used for application loop
+type terminalGUI struct {
+	app  *tview.Application
+	grid *tview.Grid
+}
+
+var (
+	memoryTV *tview.TextView
+	cpuTV    *tview.TextView
+)
+
+/* Define structure for each type of system info read-out (modularize CPU, Memory stuff, out of main)*/
+
 func main() {
 
-	app := tview.NewApplication()
+	ui := initialzeUI()
 
-	total, used, available := getVirtualMemory()
-	cpu := getCPU()
+	memoryTV := tview.NewTextView()
+	cpuTV := tview.NewTextView()
 
-	memorySummary := fmt.Sprintf("total: %d, Used: %d, Available: %d", total, used, available)
-	cpuSummary := fmt.Sprintf("CPU: %s", cpu)
+	ui.grid = tview.NewGrid().AddItem(memoryTV, 0, 0, 2, 2, 2, 2, false)
+	ui.grid.AddItem(cpuTV, 1, 0, 2, 2, 2, 2, false)
 
-	memoryText := tview.NewTextView().SetText(memorySummary)
-	memoryText.SetTitle("Memory:")
-	cpuText := tview.NewTextView().SetText(cpuSummary)
-	cpuText.SetTitle("CPU:")
-
-
-	grid := tview.NewGrid().AddItem(memoryText, 0, 0, 2, 2, 2, 2, false)
-	grid.AddItem(cpuText, 1, 0, 2, 2, 2, 2, false)
-
-	if err := app.SetRoot(grid, true).Run(); err != nil {
+	if err := ui.app.SetRoot(ui.grid, true).Run(); err != nil {
 		panic(err)
 	}
 
+	ui.app.Run()
+	updateTime(ui.app)
+
 }
 
-func getVirtualMemory() (int64, int64, int64) {
+/* Start-up the UI with basic components*/
+func initialzeUI() terminalGUI {
+	ui := terminalGUI{tview.NewApplication(), tview.NewGrid()}
+	return ui
+}
+
+func updateTime(app *tview.Application) {
+	for {
+		time.Sleep(refreshInterval)
+		app.QueueUpdateDraw(func() {
+			updateUI(app)
+		})
+	}
+}
+
+func updateUI(app *tview.Application) {
+	memoryTV.SetText(getVirtualMemory())
+	cpuTV.SetText(getCPU())
+}
+
+/* Get the virual memory */
+func getVirtualMemory() string {
 	v, _ := mem.VirtualMemory()
 
-	return int64(v.Total), int64(v.Used), int64(v.Available)
+	total, used, available := v.Total, v.Used, v.Available
+
+	memorySummary := fmt.Sprintf("total: %d, Used: %d, Available: %d", total, used, available)
+
+	return memorySummary
 }
 
+/* Get # cores and percentage used */
 func getCPU() string {
 	v, _ := cpu.Info()
 
+	coreTime, _ := cpu.Percent(0, false)
+
 	cpuInfo := cpu.InfoStat(v[0])
 
-	return cpuInfo.Family
+	cpuSummary := fmt.Sprintf("Cores: %d  Used: %f", cpuInfo.Cores, coreTime[0])
+
+	return cpuSummary
 }
