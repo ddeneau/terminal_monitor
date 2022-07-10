@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
-const refreshInterval = 500 * time.Millisecond // Used for application loop
+const refreshInterval = 1 * time.Millisecond // Used for application loop
 type terminalGUI struct {
 	app  *tview.Application
 	grid *tview.Grid
 }
 
 var (
-	memoryTV *tview.TextView
-	cpuTV    *tview.TextView
+	memoryTV *tview.TreeView
+	cpuTV    *tview.TreeView
 )
 
 /* Define structure for each type of system info read-out (modularize CPU, Memory stuff, out of main)*/
@@ -26,18 +27,24 @@ func main() {
 
 	ui := initialzeUI()
 
-	memoryTV := tview.NewTextView()
-	cpuTV := tview.NewTextView()
+	memoryTV := tview.NewTreeView() // Don't use treeview here...probably not the best idea.
+	memoryTV.SetBackgroundColor(tcell.Color102)
+	memoryTV.SetBorder(true).SetTitle("RAM")
+	cpuTV := tview.NewTreeView()
 
-	ui.grid = tview.NewGrid().AddItem(memoryTV, 0, 0, 2, 2, 2, 2, false)
-	ui.grid.AddItem(cpuTV, 1, 0, 2, 2, 2, 2, false)
+	cpuCoreTV := tview.NewTextView()
+	cpuTV.SetBackgroundColor(tcell.Color102)
+	cpuCoreTV.SetText(getCPU())
+	cpuTV.SetBorder(true).SetTitle("CPU")
+
+	ui.grid = tview.NewGrid().AddItem(memoryTV, 0, 0, 1, 1, 1, 1, false)
+	ui.grid.AddItem(cpuTV, 1, 0, 1, 1, 1, 1, false)
 
 	if err := ui.app.SetRoot(ui.grid, true).Run(); err != nil {
 		panic(err)
 	}
 
-	ui.app.Run()
-	updateTime(ui.app)
+	go updateTime(ui.app)
 
 }
 
@@ -50,15 +57,12 @@ func initialzeUI() terminalGUI {
 func updateTime(app *tview.Application) {
 	for {
 		time.Sleep(refreshInterval)
-		app.QueueUpdateDraw(func() {
-			updateUI(app)
-		})
+
 	}
 }
 
-func updateUI(app *tview.Application) {
-	memoryTV.SetText(getVirtualMemory())
-	cpuTV.SetText(getCPU())
+func updateUI() {
+
 }
 
 /* Get the virual memory */
@@ -67,7 +71,7 @@ func getVirtualMemory() string {
 
 	total, used, available := v.Total, v.Used, v.Available
 
-	memorySummary := fmt.Sprintf("total: %d, Used: %d, Available: %d", total, used, available)
+	memorySummary := fmt.Sprintf("total: %d mb, \n Used: %d mb, \n Available: %d mb", total, used, available)
 
 	return memorySummary
 }
