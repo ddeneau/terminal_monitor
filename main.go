@@ -8,7 +8,6 @@ import (
 )
 
 const refreshInterval = 1 * time.Millisecond // Used for application loop
-const ui = *terminalGUI
 
 type terminalGUI struct {
 	app        *tview.Application
@@ -18,6 +17,7 @@ type terminalGUI struct {
 	memText    *tview.TextView
 	cpuText    *tview.TextView
 }
+
 
 /* Define structure for each type of system info read-out (modularize CPU, Memory stuff, out of main)*/
 
@@ -50,7 +50,7 @@ func initialzeUI() terminalGUI {
 	return ui
 }
 
-func updateUI() {
+func updateUI(ui *terminalGUI) {
 	sysInfo := getCPU()
 	ui.cpuText.SetText(sysInfo)
 
