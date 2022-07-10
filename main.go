@@ -1,14 +1,9 @@
 package main
 
 import (
-	"time"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
-
-const refreshInterval = 1 * time.Millisecond // Used for application loop
-
 type terminalGUI struct {
 	app        *tview.Application
 	grid       *tview.Grid
@@ -29,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	updateUI()
+	updateUI(&ui)
 
 }
 
@@ -51,7 +46,10 @@ func initialzeUI() terminalGUI {
 }
 
 func updateUI(ui *terminalGUI) {
-	sysInfo := getCPU()
-	ui.cpuText.SetText(sysInfo)
+	sysInfo := [2]string {getCPU(), getVirtualMemory()}
+	ui.cpuText.SetText(sysInfo[0])
+	ui.memText.SetText(sysInfo[1])
+
+
 
 }
