@@ -49,7 +49,4 @@ func updateUI(ui *terminalGUI) {
 	sysInfo := [2]string {getCPU(), getVirtualMemory()}
 	ui.cpuText.SetText(sysInfo[0])
 	ui.memText.SetText(sysInfo[1])
-
-
-
 }
