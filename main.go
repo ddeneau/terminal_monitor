@@ -16,31 +16,26 @@ type terminalGUI struct {
 	tempTimer *tview.TextView
 }
 
-var stopped = false
-
-/* Define structure for each type of system info read-out (modularize CPU, Memory stuff, out of main)*/
+var refreshRate = time.Millisecond
 
 func main() {
 
 	ui := initialzeUI()
 
+	// Set up quit key input capture.
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
-			stopped = true
 			ui.app.Stop()
 		}
+
 		return event
 	})
 
-	for !stopped {
-		updateUI(&ui)
-		time.Sleep(time.Second)
+	go refresh(&ui) // goroutine for refreshing.
 
-		if err := ui.app.SetRoot(ui.grid, true).Run(); err != nil {
-			panic(err)
-		}
+	if err := ui.app.SetRoot(ui.grid, true).Run(); err != nil {
+		panic(err)
 	}
-
 }
 
 /* Start-up the UI with basic components (two basic components for now, lol)*/
@@ -59,6 +54,7 @@ func initialzeUI() terminalGUI {
 	return ui
 }
 
+// Renders system information onto graphical components of a running app.
 func updateUI(ui *terminalGUI) {
 	sysInfo := [2]string{getCPU(), getVirtualMemory()}
 	ui.cpuText.SetText(sysInfo[0])
@@ -67,5 +63,14 @@ func updateUI(ui *terminalGUI) {
 	ui.grid.AddItem(ui.cpuText, 0, 0, 2, 1, 1, 1, true)
 	ui.grid.AddItem(ui.memText, 0, 1, 2, 1, 1, 1, false)
 	ui.grid.AddItem(ui.tempTimer, 2, 1, 1, 2, 1, 2, false)
+}
 
+// Uses an infinite loop to wait a period of time, then send an update to the running app.
+func refresh(ui *terminalGUI) {
+	for {
+		time.Sleep(refreshRate)
+		ui.app.QueueUpdateDraw(func() {
+			updateUI(ui)
+		})
+	}
 }
