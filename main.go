@@ -16,7 +16,8 @@ type terminalGUI struct {
 	tempTimer *tview.TextView
 }
 
-var refreshRate = time.Millisecond
+var refreshRate = 1 * time.Second
+var globalTimer = 0
 
 func main() {
 
@@ -59,10 +60,11 @@ func updateUI(ui *terminalGUI) {
 	sysInfo := [2]string{getCPU(), getVirtualMemory()}
 	ui.cpuText.SetText(sysInfo[0])
 	ui.memText.SetText(sysInfo[1])
-	ui.tempTimer.SetText(fmt.Sprintf("%d", time.Now().Unix()))
-	ui.grid.AddItem(ui.cpuText, 0, 0, 2, 1, 1, 1, true)
+	ui.tempTimer.SetText(fmt.Sprintf("Terminal Monitor Running For: %d Seconds", globalTimer))
+	ui.grid.AddItem(ui.cpuText, 0, 0, 2, 1, 1, 1, false)
 	ui.grid.AddItem(ui.memText, 0, 1, 2, 1, 1, 1, false)
-	ui.grid.AddItem(ui.tempTimer, 2, 1, 1, 2, 1, 2, false)
+	ui.grid.AddItem(ui.tempTimer, 2, 0, 1, 2, 1, 2, false)
+	globalTimer += 1
 }
 
 // Uses an infinite loop to wait a period of time, then send an update to the running app.
