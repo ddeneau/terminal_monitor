@@ -9,4 +9,3 @@ go run main.go system.go view.go
 
 For now, the README.md is going to be a little empty as I add features. 
 
-go run main.go systemInformation.go
