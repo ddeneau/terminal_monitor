@@ -7,6 +7,14 @@ import (
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
+type systemData struct {
+	cpuInfoIndex *cpu.InfoStat
+}
+
+func initializeSystemData() {
+	//TODO: Make repeated calls to API here.
+}
+
 /* Get the virual memory */
 func getVirtualMemory() string {
 	v, _ := mem.VirtualMemory()
@@ -21,16 +29,16 @@ func getVirtualMemory() string {
 /* Get # cores and percentage used */
 func getCPU() string {
 	infoIndex, _ := cpu.Info()
-
 	coreTime, _ := cpu.Percent(0, true)
+	infoStat := cpu.InfoStat(infoIndex[0])
+	cores, time := infoStat.Cores, coreTime[0]
 
+	return fmt.Sprintf(`Number of Cores: %d  Usage: %f %%`, cores, time)
+}
+
+func getCPUTitle() string {
+	infoIndex, _ := cpu.Info()
 	infoStat := cpu.InfoStat(infoIndex[0])
 
-	cpuSummary := fmt.Sprintf(`	Model: %s 
-	# of Cores: %d 
-	Usage: %f %%`,
-		infoStat.ModelName,
-		infoStat.Cores, coreTime[0])
-
-	return cpuSummary
+	return fmt.Sprintf(`Model Name: %s`, infoStat.ModelName)
 }
