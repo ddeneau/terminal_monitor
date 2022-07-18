@@ -55,7 +55,7 @@ func initialzeUI() terminalGUI {
 func initializeUIComponents(ui *terminalGUI) {
 	ui.ram = initializeRAMUI(ui.grid)
 	ui.cpu = initializeCPUUI(ui.grid)
-	ui.blank = intializeBlankUI(ui.grid)
+	// ui.blank = intializeBlankUI(ui.grid)
 }
 
 /* Each of these  just add UI components to the global grid, passed in, and return the
@@ -67,14 +67,15 @@ func initializeRAMUI(grid *tview.Grid) *tview.TextView {
 	text := tview.NewTextView()
 
 	title.SetBackgroundColor(tcell.Color102)
-	title.SetText("2015 Macbook Pro RAM").SetTextColor(tcell.Color101)
+	title.SetText("RAM")
 
 	text.SetBackgroundColor(tcell.Color102)
-	text.SetBorder(true).SetTitle("RAM")
+
+	memGrid.SetBorder(true)
 
 	memGrid.AddItem(title, 0, 0, 1, 1, 1, 1, false)
-	memGrid.AddItem(text, 0, 1, 1, 1, 1, 1, false)
-	grid.AddItem(memGrid, 0, 1, 1, 1, 1, 1, false)
+	memGrid.AddItem(text, 1, 0, 1, 1, 1, 1, false)
+	grid.AddItem(memGrid, 0, 2, 1, 2, 2, 2, false)
 
 	return text
 }
@@ -85,13 +86,14 @@ func initializeCPUUI(grid *tview.Grid) *tview.TextView {
 	text := tview.NewTextView()
 
 	title.SetBackgroundColor(tcell.Color102)
-	title.SetText(getCPUTitle()).SetTextColor(tcell.Color101)
+	title.SetText(getCPUTitle())
 	text.SetBackgroundColor(tcell.Color102)
-	text.SetBorder(true).SetTitle("CPU")
+
+	cpuGrid.SetBorder(true)
 
 	cpuGrid.AddItem(title, 0, 0, 1, 1, 1, 1, false)
 	cpuGrid.AddItem(text, 1, 0, 1, 1, 1, 1, false)
-	grid.AddItem(cpuGrid, 0, 0, 1, 1, 1, 1, false)
+	grid.AddItem(cpuGrid, 0, 0, 1, 2, 2, 2, false)
 
 	return text
 }
@@ -103,7 +105,7 @@ func intializeBlankUI(grid *tview.Grid) *tview.TextView {
 
 	blankGrid.AddItem(title, 0, 0, 1, 1, 1, 1, false)
 	blankGrid.AddItem(text, 0, 1, 1, 1, 1, 1, false)
-	grid.AddItem(blankGrid, 2, 0, 1, 2, 1, 2, false)
+	grid.AddItem(blankGrid, 0, 4, 1, 1, 1, 2, false)
 
 	return text
 }
