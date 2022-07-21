@@ -12,7 +12,7 @@ type systemData struct {
 }
 
 func initializeSystemData() {
-	//TODO: Make repeated calls to API here.
+	
 }
 
 /* Get the virual memory */
@@ -24,6 +24,11 @@ func getVirtualMemory() string {
 	memorySummary := fmt.Sprintf(" total: %d mb, \n Used: %d mb, \n Available: %d mb", total, used, available)
 
 	return memorySummary
+}
+
+func getVirtualMemoryTitle() string {
+
+	return "Virtual Memory"
 }
 
 /* Get # cores and percentage used */
@@ -40,5 +45,5 @@ func getCPUTitle() string {
 	infoIndex, _ := cpu.Info()
 	infoStat := cpu.InfoStat(infoIndex[0])
 
-	return fmt.Sprintf(`Model Name: %s`, infoStat.ModelName)
+	return infoStat.ModelName
 }

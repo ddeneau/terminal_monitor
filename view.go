@@ -55,7 +55,7 @@ func initialzeUI() terminalGUI {
 func initializeUIComponents(ui *terminalGUI) {
 	ui.ram = initializeRAMUI(ui.grid)
 	ui.cpu = initializeCPUUI(ui.grid)
-	// ui.blank = intializeBlankUI(ui.grid)
+	ui.blank = intializeBlankUI(ui.grid)
 }
 
 /* Each of these  just add UI components to the global grid, passed in, and return the
@@ -67,7 +67,7 @@ func initializeRAMUI(grid *tview.Grid) *tview.TextView {
 	text := tview.NewTextView()
 
 	title.SetBackgroundColor(tcell.Color102)
-	title.SetText("RAM")
+	title.SetText(getVirtualMemoryTitle())
 
 	text.SetBackgroundColor(tcell.Color102)
 
@@ -87,6 +87,7 @@ func initializeCPUUI(grid *tview.Grid) *tview.TextView {
 
 	title.SetBackgroundColor(tcell.Color102)
 	title.SetText(getCPUTitle())
+	title.SetTextAlign(1)
 	text.SetBackgroundColor(tcell.Color102)
 
 	cpuGrid.SetBorder(true)
@@ -102,10 +103,14 @@ func intializeBlankUI(grid *tview.Grid) *tview.TextView {
 	blankGrid := tview.NewGrid()
 	title := tview.NewTextView()
 	text := tview.NewTextView()
+	table := tview.NewTable()
 
+	title.SetTitle("Processes")
+	text.SetText("To be implemented")
 	blankGrid.AddItem(title, 0, 0, 1, 1, 1, 1, false)
 	blankGrid.AddItem(text, 0, 1, 1, 1, 1, 1, false)
-	grid.AddItem(blankGrid, 0, 4, 1, 1, 1, 2, false)
+	blankGrid.AddItem(table, 1, 0, 1, 1, 1, 1, false)
+	grid.AddItem(blankGrid, 4, 0, 1, 1, 1, 2, false)
 
 	return text
 }
