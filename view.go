@@ -67,16 +67,16 @@ func initializeRAMUI(grid *tview.Grid) *tview.TextView {
 	text := tview.NewTextView()
 
 	title.SetBackgroundColor(tcell.Color102)
-	title.SetText(getVirtualMemoryTitle())
+	title.SetText("RAM")
+	title.SetTextAlign(1)
+	text.SetText(getVirtualMemory())
 
 	text.SetBackgroundColor(tcell.Color102)
 
 	memGrid.SetBorder(true)
 
-	memGrid.AddItem(title, 0, 0, 1, 1, 1, 1, false)
-	memGrid.AddItem(text, 1, 0, 1, 1, 1, 1, false)
-	grid.AddItem(memGrid, 0, 2, 1, 2, 2, 2, false)
-
+	memGrid.AddItem(title, 0, 0, 1, 1, 2, 1, false)
+	grid.AddItem(memGrid, 0, 2, 3, 2, 0, 0, false)
 	return text
 }
 
@@ -87,15 +87,14 @@ func initializeCPUUI(grid *tview.Grid) *tview.TextView {
 
 	title.SetBackgroundColor(tcell.Color102)
 	title.SetText(getCPUTitle())
+	title.SetText("CPU")
 	title.SetTextAlign(1)
 	text.SetBackgroundColor(tcell.Color102)
 
 	cpuGrid.SetBorder(true)
 
-	cpuGrid.AddItem(title, 0, 0, 1, 1, 1, 1, false)
-	cpuGrid.AddItem(text, 1, 0, 1, 1, 1, 1, false)
-	grid.AddItem(cpuGrid, 0, 0, 1, 2, 2, 2, false)
-
+	cpuGrid.AddItem(title, 0, 0, 1, 2, 0, 0, false)
+	grid.AddItem(cpuGrid, 0, 0, 3, 2, 0, 0, false)
 	return text
 }
 
@@ -103,15 +102,15 @@ func intializeBlankUI(grid *tview.Grid) *tview.TextView {
 	blankGrid := tview.NewGrid()
 	title := tview.NewTextView()
 	text := tview.NewTextView()
-	table := tview.NewTable()
+	//table := tview.NewTable()
 
 	title.SetTitle("Processes")
-	text.SetText("To be implemented")
-	blankGrid.AddItem(title, 0, 0, 1, 1, 1, 1, false)
-	blankGrid.AddItem(text, 0, 1, 1, 1, 1, 1, false)
-	blankGrid.AddItem(table, 1, 0, 1, 1, 1, 1, false)
-	grid.AddItem(blankGrid, 4, 0, 1, 1, 1, 2, false)
+	text.SetText("Disk(s) To be implemented")
+	text.SetTextAlign(1)
+	blankGrid.SetBorder(true)
 
+	blankGrid.AddItem(text, 0, 0, 1, 1, 1, 1, false)
+	grid.AddItem(blankGrid, 3, 0, 4, 4, 4, 4, false)
 	return text
 }
 
