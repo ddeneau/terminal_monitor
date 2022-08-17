@@ -1,46 +1,42 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
-type systemData struct {
-	cpuInfoIndex *cpu.InfoStat
-}
-
-func initializeSystemData() {
-	
+// Stores data about RAM.
+type RAM struct {
+	total    	float32
+	used      	float32
+	available 	float32
 }
 
 /* Get the virual memory */
-func getVirtualMemory() string {
+func getVirtualMemory() RAM {
 	v, _ := mem.VirtualMemory()
+	total, used, available := float32(v.Total), float32(v.Used), float32(v.Available)
+	ramModel := RAM{}
+	
+	ramModel.total = total / (10e8)
+	ramModel.used = used / (10e8)
+	ramModel.available = available / (10e8)
 
-	total, used, available := v.Total/1000000, v.Used/1000000, v.Available/1000000
-
-	memorySummary := fmt.Sprintf(" total: %d mb, \n Used: %d mb, \n Available: %d mb", total, used, available)
-
-	return memorySummary
+	return ramModel
 }
 
-func getVirtualMemoryTitle() string {
-
-	return "Virtual Memory"
-}
-
-/* Get # cores and percentage used */
-func getCPU() string {
+/* Get # cores and percentage used
+returns a int32 and float64, so uses two return values instead of a struct. */
+func getCPU() (int32, float64) {
 	infoIndex, _ := cpu.Info()
 	coreTime, _ := cpu.Percent(0, true)
 	infoStat := cpu.InfoStat(infoIndex[0])
 	cores, time := infoStat.Cores, coreTime[0]
 
-	return fmt.Sprintf(`Number of Cores: %d  Usage: %f %%`, cores, time)
+	return cores, time
 }
 
+/* Get model name of CPU */
 func getCPUTitle() string {
 	infoIndex, _ := cpu.Info()
 	infoStat := cpu.InfoStat(infoIndex[0])
