@@ -9,4 +9,4 @@ go run main.go system.go view.go
 
 For now, the README.md is going to be a little empty as I add features. 
 
-<img width="951" alt="Screen Shot 2022-08-05 at 1 26 12 PM" src="https://user-images.githubusercontent.com/58960615/183129543-ee8ea814-7ce1-4c71-8e33-adcc86c6b43b.png">
+<img width="673" alt="Screen Shot 2022-08-16 at 10 57 24 PM" src="https://user-images.githubusercontent.com/58960615/185024720-95509e24-2864-4d54-9494-95f14b1a8d66.png">
