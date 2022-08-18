@@ -22,11 +22,13 @@ type RAMView struct {
 	availableTV *tview.TextView
 }
 type terminalGUI struct {
-	app   *tview.Application
-	grid  *tview.Grid
-	ram   *RAMView
-	cpu   *CPUView
-	blank *tview.TextView
+	app     *tview.Application
+	grid    *tview.Grid
+	cpuGrid *tview.Grid
+	bar     *tview.Grid
+	ram     *RAMView
+	cpu     *CPUView
+	blank   *tview.TextView
 }
 
 var refreshRate = 1 * time.Second // Refresh the screen this frequently.
@@ -78,14 +80,65 @@ func initialzeUI() terminalGUI {
 /* Just initializes each sub-component of the UI. */
 func initializeUIComponents(ui *terminalGUI) {
 	ui.ram = initializeRAMUI(ui.grid)
-	ui.cpu = initializeCPUUI(ui.grid)
+	ui.cpu, ui.cpuGrid = initializeCPUUI(ui.grid) // Using dual return statements to initialize cpuGrid AND CPUView
 	ui.blank = intializeBlankUI(ui.grid)
+	ui.bar = tview.NewGrid()
+}
+
+func initializeCPUUI(grid *tview.Grid) (*CPUView, *tview.Grid) {
+	cpuView := CPUView{}
+	cpuGrid := tview.NewGrid()
+	percentageGrid := tview.NewGrid()
+	title := tview.NewTextView()
+	clockTimeLabel := tview.NewTextView()
+	coresLabel := tview.NewTextView()
+	modelName := tview.NewTextView()
+	cpuView.coresTV = tview.NewTextView()
+	cpuView.ctTV = tview.NewTextView()
+
+	//title.SetBackgroundColor(tcell.Color102)
+	title.SetText("CPU").SetBackgroundColor(tcell.Color102)
+	title.SetTextAlign(1)
+
+	coresLabel.SetText("Cores: ").SetTextAlign(1)
+	cpuView.coresTV.SetText("initializing text field").SetTextAlign(1)
+	cpuView.coresTV.SetTextColor(tcell.ColorCadetBlue)
+
+	clockTimeLabel.SetText("Clock Time: ")
+
+	cpuView.ctTV.SetText("initializing text field")
+	cpuView.ctTV.SetTextColor(tcell.ColorLime)
+
+	percentageGrid.SetBackgroundColor(tcell.Color200)
+
+	modelName.SetText(getCPUTitle())
+	modelName.SetTextAlign(1)
+
+	cpuGrid.SetBorder(true)
+
+	percentageGrid.AddItem(cpuView.ctTV, 0, 0, 1, 1, 0, 0, false)
+	percentageGrid.AddItem(tview.NewTextView().SetText("%"), 0, 1, 1, 1, 0, 0, false)
+
+	cpuGrid.AddItem(title, 0, 0, 1, 2, 0, 0, false)           // CPU Title row 0, col 0, l = 1, w = 2/
+	cpuGrid.AddItem(coresLabel, 1, 0, 1, 1, 0, 0, false)      // CPU Label row 1, col 1, l = 1, w = 1
+	cpuGrid.AddItem(cpuView.coresTV, 2, 0, 1, 1, 0, 0, false) // CPU Label row 2, col 1, l = 1, w = 1
+	cpuGrid.AddItem(clockTimeLabel, 1, 1, 1, 1, 0, 0, false)  // CPU Label row: 1, col: 0 l = 1 w = 1.  // CPU Data: row: 2, col: 0 l = 1 w = 1.
+	cpuGrid.AddItem(percentageGrid, 2, 1, 1, 1, 0, 0, false)
+	cpuGrid.AddItem(modelName, 3, 0, 1, 2, 0, 0, false)
+
+	grid.AddItem(cpuGrid, 0, 0, 4, 1, 0, 0, false) 
+	/* NOTE: A small grid of width '1 unit' can be placed
+	// in the main rooted grid, and still have its own number of columns.
+	// The CPU box does this by having one inner grid 
+	// of width '2 sub-units' , and an inner-inner grid of of width '2 sub-sub units'.
+	// In other words, each grid gets in own local count of rows and columns to span */
+	return &cpuView, cpuGrid
 }
 
 /* Each of these  just add UI components to the global grid, passed in, and return the
    UI component that needs to be refreshed  */
 
-func initializeRAMUI(grid *tview.Grid) *RAMView {
+   func initializeRAMUI(grid *tview.Grid) *RAMView {
 	ramView := RAMView{}
 	memGrid := tview.NewGrid()
 	title := tview.NewTextView()
@@ -104,9 +157,12 @@ func initializeRAMUI(grid *tview.Grid) *RAMView {
 	availableLabel.SetText("Free: ")
 	totalLabel.SetText("Total: ")
 
-	ramView.usedTV.SetText("initializing text field").SetTextAlign(2).SetTextColor(tcell.ColorTomato)
-	ramView.availableTV.SetText("initializing text field").SetTextAlign(2).SetTextColor(tcell.ColorPaleGreen)
-	ramView.totalTV.SetText("initializing text field").SetTextAlign(2).SetTextColor(tcell.ColorPaleGoldenrod)
+	ramView.usedTV.SetText("initializing text field").SetTextAlign(2)
+	ramView.usedTV.SetTextColor(tcell.ColorTomato)
+	ramView.availableTV.SetText("initializing text field").SetTextAlign(2)
+	ramView.availableTV.SetTextColor(tcell.ColorPaleGreen)
+	ramView.totalTV.SetText("initializing text field").SetTextAlign(2)
+	ramView.totalTV.SetTextColor(tcell.ColorPaleGoldenrod)
 
 	memGrid.SetBorder(true)
 
@@ -120,45 +176,8 @@ func initializeRAMUI(grid *tview.Grid) *RAMView {
 	memGrid.AddItem(totalLabel, 3, 0, 1, 1, 0, 0, false)
 	memGrid.AddItem(ramView.totalTV, 3, 1, 1, 1, 0, 0, false)
 	memGrid.AddItem(tview.NewTextView().SetText("GB").SetTextAlign(1), 3, 2, 1, 1, 0, 0, false)
-	grid.AddItem(memGrid, 0, 2, 4, 2, 0, 0, false)
+	grid.AddItem(memGrid, 0, 2, 4, 1, 0, 0, false)
 	return &ramView
-}
-
-func initializeCPUUI(grid *tview.Grid) *CPUView {
-	cpuView := CPUView{}
-
-	cpuGrid := tview.NewGrid()
-	title := tview.NewTextView()
-	clockTimeLabel := tview.NewTextView()
-	coresLabel := tview.NewTextView()
-	modelName := tview.NewTextView()
-	cpuView.coresTV = tview.NewTextView()
-	cpuView.ctTV = tview.NewTextView()
-
-	//title.SetBackgroundColor(tcell.Color102)
-	title.SetText("CPU").SetBackgroundColor(tcell.Color102)
-	title.SetTextAlign(1)
-
-	coresLabel.SetText("Cores: ").SetTextAlign(1)
-	cpuView.coresTV.SetText("initializing text field").SetTextAlign(1).SetTextColor(tcell.ColorCadetBlue)
-
-	clockTimeLabel.SetText("Clock Time: ").SetTextAlign(2)
-	cpuView.ctTV.SetText("initializing text field").SetTextColor(tcell.ColorLime).SetTextAlign(2)
-
-	modelName.SetText(getCPUTitle()).SetTitleAlign(1)
-
-	cpuGrid.SetBorder(true)
-
-	cpuGrid.AddItem(title, 0, 0, 1, 3, 0, 0, false)           // CPU Title row 0, col 0, l = 1, w = 2/
-	cpuGrid.AddItem(coresLabel, 1, 0, 1, 1, 0, 0, false)      // CPU Label row 1, col 1, l = 1, w = 1
-	cpuGrid.AddItem(cpuView.coresTV, 2, 0, 1, 1, 0, 0, false) // CPU Label row 2, col 1, l = 1, w = 1
-	cpuGrid.AddItem(clockTimeLabel, 1, 1, 1, 1, 0, 0, false)  // CPU Label row: 1, col: 0 l = 1 w = 1.
-	cpuGrid.AddItem(cpuView.ctTV, 2, 1, 1, 1, 0, 0, false)    // CPU Data: row: 2, col: 0 l = 1 w = 1.
-	cpuGrid.AddItem(tview.NewTextView().SetText("%"), 2, 2, 1, 1, 0, 0, false)
-	cpuGrid.AddItem(modelName, 3, 0, 1, 3, 0, 0, false)
-
-	grid.AddItem(cpuGrid, 0, 0, 4, 2, 0, 0, false)
-	return &cpuView
 }
 
 func intializeBlankUI(grid *tview.Grid) *tview.TextView {
@@ -168,12 +187,12 @@ func intializeBlankUI(grid *tview.Grid) *tview.TextView {
 	//table := tview.NewTable()
 
 	title.SetTitle("Processes")
-	text.SetText("Disk(s) To be implemented")
+	text.SetText("- in progress -")
 	text.SetTextAlign(1)
 	blankGrid.SetBorder(true)
 
 	blankGrid.AddItem(text, 0, 0, 1, 1, 1, 1, false)
-	grid.AddItem(blankGrid, 5, 0, 4, 4, 4, 4, false)
+	grid.AddItem(blankGrid, 4, 0, 2, 3, 0, 0, false)
 	return text
 }
 
@@ -183,11 +202,40 @@ func updateUI(ui *terminalGUI) {
 	updateRAMUI(ui)
 }
 
+func fillBars(amount int8, ui *terminalGUI) {
+	color := tcell.NewRGBColor(0, 0, 0)
+
+	for i := 0; i <= int(amount); i++ {
+		box := tview.NewBox()
+
+		switch i {
+		case 1:
+			color = tcell.NewRGBColor(0, 255, 0)
+		case 2:
+			color = tcell.NewRGBColor(0, 205, 0)
+		case 3:
+			color = tcell.NewRGBColor(0, 165, 0)
+		case 4:
+			color = tcell.NewRGBColor(0, 115, 0)
+
+		}
+
+		box.SetBackgroundColor(color)
+		ui.bar.AddItem(box, 0, 0, i, 1, 0, 0, false)
+	}
+
+	ui.bar.SetBorder(false)
+	ui.grid.AddItem(ui.bar, 0, 1, 1, 1, 0, 0, false)
+}
+
 func updateCpuUI(ui *terminalGUI) {
 	cores, clockTime := getCPU()
 
 	ui.cpu.coresTV.SetText(fmt.Sprintf("%d", cores))
 	ui.cpu.ctTV.SetText(fmt.Sprintf("%.4f ", clockTime))
+
+	fillBars(int8(clockTime), ui)
+
 	//ui.cpu = &cpuView
 }
 
