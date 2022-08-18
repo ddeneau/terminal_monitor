@@ -126,10 +126,10 @@ func initializeCPUUI(grid *tview.Grid) (*CPUView, *tview.Grid) {
 	cpuGrid.AddItem(percentageGrid, 2, 1, 1, 1, 0, 0, false)
 	cpuGrid.AddItem(modelName, 3, 0, 1, 2, 0, 0, false)
 
-	grid.AddItem(cpuGrid, 0, 0, 4, 1, 0, 0, false) 
+	grid.AddItem(cpuGrid, 0, 0, 4, 1, 0, 0, false)
 	/* NOTE: A small grid of width '1 unit' can be placed
 	// in the main rooted grid, and still have its own number of columns.
-	// The CPU box does this by having one inner grid 
+	// The CPU box does this by having one inner grid
 	// of width '2 sub-units' , and an inner-inner grid of of width '2 sub-sub units'.
 	// In other words, each grid gets in own local count of rows and columns to span */
 	return &cpuView, cpuGrid
@@ -138,13 +138,16 @@ func initializeCPUUI(grid *tview.Grid) (*CPUView, *tview.Grid) {
 /* Each of these  just add UI components to the global grid, passed in, and return the
    UI component that needs to be refreshed  */
 
-   func initializeRAMUI(grid *tview.Grid) *RAMView {
+func initializeRAMUI(grid *tview.Grid) *RAMView {
 	ramView := RAMView{}
 	memGrid := tview.NewGrid()
 	title := tview.NewTextView()
 	usedLabel := tview.NewTextView()
 	availableLabel := tview.NewTextView()
 	totalLabel := tview.NewTextView()
+	gb := tview.NewTextView()
+	gb1 := tview.NewTextView()
+	gb2 := tview.NewTextView()
 
 	ramView.usedTV = tview.NewTextView()
 	ramView.availableTV = tview.NewTextView()
@@ -154,28 +157,40 @@ func initializeCPUUI(grid *tview.Grid) (*CPUView, *tview.Grid) {
 	title.SetTextAlign(1)
 
 	usedLabel.SetText("In Use: ")
+	usedLabel.SetBackgroundColor(tcell.ColorWheat)
 	availableLabel.SetText("Free: ")
+	availableLabel.SetBackgroundColor(tcell.ColorWheat)
 	totalLabel.SetText("Total: ")
+	totalLabel.SetBackgroundColor(tcell.ColorWheat)
 
 	ramView.usedTV.SetText("initializing text field").SetTextAlign(2)
 	ramView.usedTV.SetTextColor(tcell.ColorTomato)
+	ramView.usedTV.SetBackgroundColor(tcell.ColorWheat)
 	ramView.availableTV.SetText("initializing text field").SetTextAlign(2)
 	ramView.availableTV.SetTextColor(tcell.ColorPaleGreen)
+	ramView.availableTV.SetBackgroundColor(tcell.ColorWheat)
 	ramView.totalTV.SetText("initializing text field").SetTextAlign(2)
 	ramView.totalTV.SetTextColor(tcell.ColorPaleGoldenrod)
+	ramView.totalTV.SetBackgroundColor(tcell.ColorWheat)
 
-	memGrid.SetBorder(true)
+	gb.SetBackgroundColor(tcell.ColorWheat)
+	gb.SetText(" GB")
+
+	gb1.SetBackgroundColor(tcell.ColorWheat)
+	gb1.SetText(" GB")
+	gb2.SetBackgroundColor(tcell.ColorWheat)
+	gb2.SetText(" GB")
 
 	memGrid.AddItem(title, 0, 0, 1, 3, 0, 0, false)
 	memGrid.AddItem(usedLabel, 1, 0, 1, 1, 0, 0, false)
 	memGrid.AddItem(ramView.usedTV, 1, 1, 1, 1, 0, 0, false)
-	memGrid.AddItem(tview.NewTextView().SetText("GB").SetTextAlign(1), 1, 2, 1, 1, 0, 0, false)
+	memGrid.AddItem(gb, 1, 2, 1, 1, 0, 0, false)
 	memGrid.AddItem(availableLabel, 2, 0, 1, 1, 0, 0, false)
 	memGrid.AddItem(ramView.availableTV, 2, 1, 1, 1, 0, 0, false)
-	memGrid.AddItem(tview.NewTextView().SetText("GB").SetTextAlign(1), 2, 2, 1, 1, 0, 0, false)
+	memGrid.AddItem(gb1, 2, 2, 1, 1, 0, 0, false)
 	memGrid.AddItem(totalLabel, 3, 0, 1, 1, 0, 0, false)
 	memGrid.AddItem(ramView.totalTV, 3, 1, 1, 1, 0, 0, false)
-	memGrid.AddItem(tview.NewTextView().SetText("GB").SetTextAlign(1), 3, 2, 1, 1, 0, 0, false)
+	memGrid.AddItem(gb2, 3, 2, 1, 1, 0, 0, false)
 	grid.AddItem(memGrid, 0, 2, 4, 1, 0, 0, false)
 	return &ramView
 }
